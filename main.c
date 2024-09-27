@@ -73,18 +73,28 @@
 
 #define GROUND 720
 
+typedef enum Direction
+{
+    UndefinedDirection,
+    Left,
+    Right,
+} Direction;
+
 typedef struct Player
 {
-    Vector2 position;
-    Vector2 velocity;
-    float   acceleration;
-    float   acceleration_air;
-    float   max_x_speed;
-    float   max_y_speed;
-    float   jump_velocity;
-    int     max_jumps;
-    int     jumps_left;
-    bool    is_in_air;
+    Vector2   position;
+    Vector2   velocity;
+    float     acceleration;
+    float     acceleration_air;
+    float     max_x_speed;
+    float     max_y_speed;
+    float     jump_velocity;
+    int       max_jumps;
+    int       jumps_left;
+    bool      is_in_air;
+    Texture2D texture;
+    Rectangle frame_rectangle;
+    Direction direction;
 } Player;
 
 Player build_player(float pos_x, float pos_y)
@@ -100,8 +110,18 @@ Player build_player(float pos_x, float pos_y)
     player.max_jumps = 2;
     player.jumps_left = player.max_jumps;
     player.is_in_air = false;
+    player.texture = LoadTexture("resources/scarfy.png");
+    player.frame_rectangle = (Rectangle){0.0f, 0.0f,
+                                         (float)player.texture.width / 6,
+                                         (float)player.texture.height};
     return player;
 }
+
+// Vector2 get_texture_position(const Player* player)
+// {
+//     if (player->direction == Right)
+//         return (Vector2){.x = player->position.x, }
+// }
 
 int main(void)
 {
@@ -116,9 +136,6 @@ int main(void)
 
     // NOTE: Textures MUST be loaded after Window initialization (OpenGL context
     // is required)
-    Texture2D scarfy = LoadTexture("resources/scarfy.png");
-    Rectangle frame_rectangle = {0.0f, 0.0f, (float)scarfy.width / 6,
-                                 (float)scarfy.height};
 
     const int sprite_frame_rate = 8;
     int       sprite_frame_index = 0;
@@ -138,11 +155,11 @@ int main(void)
         //----------------------------------------------------------------------
 
         // Moves left/right
-        if (player.position.x < screen_width - frame_rectangle.width
+        if (player.position.x < screen_width
             && (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)))
         {
-            if (frame_rectangle.width < 0)
-                frame_rectangle.width = -frame_rectangle.width;
+            if (player.frame_rectangle.width < 0)
+                player.frame_rectangle.width = -player.frame_rectangle.width;
             if (player.velocity.x < player.max_x_speed)
             {
                 if (player.is_in_air)
@@ -155,8 +172,8 @@ int main(void)
         else if (player.position.x > 0
                  && (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)))
         {
-            if (frame_rectangle.width > 0)
-                frame_rectangle.width = -frame_rectangle.width;
+            if (player.frame_rectangle.width > 0)
+                player.frame_rectangle.width = -player.frame_rectangle.width;
             if (-player.velocity.x < player.max_x_speed)
             {
                 if (player.is_in_air)
@@ -204,8 +221,8 @@ int main(void)
             ++sprite_frame_index;
             if (sprite_frame_index > 5)
                 sprite_frame_index = 0;
-            frame_rectangle.x = (float)sprite_frame_index * (float)scarfy.width
-                                / 6;
+            player.frame_rectangle.x = (float)sprite_frame_index
+                                       * (float)player.texture.width / 6;
         }
         //----------------------------------------------------------------------
 
@@ -215,14 +232,22 @@ int main(void)
         {
             ClearBackground(RAYWHITE);
             // Draw everything:
-            DrawTexture(scarfy, 15, 40, WHITE);
-            DrawRectangleLines(15, 40, scarfy.width, scarfy.height, LIME);
-            DrawRectangleLines(
-                15 + (int)frame_rectangle.x, 40 + (int)frame_rectangle.y,
-                (int)frame_rectangle.width, (int)frame_rectangle.height, RED);
+            DrawTexture(player.texture, 15, 40, WHITE);
+            DrawRectangleLines(15, 40, player.texture.width,
+                               player.texture.height, LIME);
+            DrawRectangleLines(15 + (int)player.frame_rectangle.x,
+                               40 + (int)player.frame_rectangle.y,
+                               (int)player.frame_rectangle.width,
+                               (int)player.frame_rectangle.height, RED);
+            // Pseudo ground
+            DrawRectangle(0, GROUND - 20, screen_width, 50, GRAY);
             // Draw target frame of the sprite
-            DrawTextureRec(scarfy, frame_rectangle, player.position, WHITE);
-            DrawRectangle(0, GROUND, screen_width, 20, GRAY);
+            // Vector2 texture_postiion = get_texture_position(&player);
+            Vector2 texture_position = (Vector2){
+                player.position.x - (float)player.frame_rectangle.width / 2,
+                player.position.y - (float)player.frame_rectangle.height};
+            DrawTextureRec(player.texture, player.frame_rectangle,
+                           texture_position, WHITE);
         }
         EndDrawing();
         //----------------------------------------------------------------------
@@ -230,7 +255,7 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------
-    UnloadTexture(scarfy); // Texture unloading
+    UnloadTexture(player.texture); // Texture unloading
     CloseWindow();         // Close window and OpenGL context
     //--------------------------------------------------------------------------
 
