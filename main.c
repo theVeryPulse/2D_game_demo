@@ -71,24 +71,43 @@
 #define MAX_FRAME_RATE 15
 #define MIN_FRAME_RATE 1
 
-#define SPRITE_MAX_SPEED 5
-
-#define GROUND 600
+#define GROUND 720
 
 typedef struct Player
 {
     Vector2 position;
-    Vector2 speed;
+    Vector2 velocity;
     float   acceleration;
     float   acceleration_air;
+    float   max_x_speed;
+    float   max_y_speed;
     float   jump_velocity;
+    int     max_jumps;
+    int     jumps_left;
+    bool    is_in_air;
 } Player;
+
+Player build_player(float pos_x, float pos_y)
+{
+    Player player;
+    player.position = (Vector2){.x = pos_x, .y = pos_y};
+    player.velocity = (Vector2){.x = 0.0f, .y = 0.0f};
+    player.acceleration = 0.7f;
+    player.acceleration_air = 0.1f;
+    player.max_x_speed = 5;
+    player.max_y_speed = 5;
+    player.jump_velocity = -20.0f;
+    player.max_jumps = 2;
+    player.jumps_left = player.max_jumps;
+    player.is_in_air = false;
+    return player;
+}
 
 int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------
-    const int screen_width  = 1920;
+    const int screen_width = 1920;
     const int screen_height = 1080;
 
     InitWindow(screen_width, screen_height, "2D Game Demo");
@@ -97,25 +116,18 @@ int main(void)
 
     // NOTE: Textures MUST be loaded after Window initialization (OpenGL context
     // is required)
-    Texture2D scarfy          = LoadTexture("resources/scarfy.png");
+    Texture2D scarfy = LoadTexture("resources/scarfy.png");
     Rectangle frame_rectangle = {0.0f, 0.0f, (float)scarfy.width / 6,
                                  (float)scarfy.height};
 
-    const int sprite_frame_rate    = 8;
-    int       sprite_frame_index   = 0;
+    const int sprite_frame_rate = 8;
+    int       sprite_frame_index = 0;
     int       sprite_frame_counter = 0;
 
-    Vector2 sprite_position = {.x = screen_width / 2, .y = GROUND};
-    Vector2 sprite_velocity = {.x = 0.0f, .y = 0.0f};
+    Player player = build_player(screen_width / 2, GROUND);
 
-    const float sprite_acceleration     = 0.7f;
-    const float sprite_acceleration_air = 0.1f;
-    const float gravity_acceleration    = 0.8f;
-    const float jump_velocity           = -20.0f;
+    const float gravity_acceleration = 0.8f;
 
-    bool      sprite_in_air = false;
-    const int max_jumps     = 2;
-    int       jumps_left    = max_jumps;
     SetTargetFPS(FPS);
     //--------------------------------------------------------------------------
 
@@ -126,65 +138,65 @@ int main(void)
         //----------------------------------------------------------------------
 
         // Moves left/right
-        if (sprite_position.x < screen_width - frame_rectangle.width
+        if (player.position.x < screen_width - frame_rectangle.width
             && (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)))
         {
             if (frame_rectangle.width < 0)
                 frame_rectangle.width = -frame_rectangle.width;
-            if (sprite_velocity.x < SPRITE_MAX_SPEED)
+            if (player.velocity.x < player.max_x_speed)
             {
-                if (sprite_in_air)
-                    sprite_velocity.x += sprite_acceleration_air;
+                if (player.is_in_air)
+                    player.velocity.x += player.acceleration_air;
                 else
-                    sprite_velocity.x += sprite_acceleration;
+                    player.velocity.x += player.acceleration;
             }
             ++sprite_frame_counter;
         }
-        else if (sprite_position.x > 0
+        else if (player.position.x > 0
                  && (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)))
         {
             if (frame_rectangle.width > 0)
                 frame_rectangle.width = -frame_rectangle.width;
-            if (-sprite_velocity.x < SPRITE_MAX_SPEED)
+            if (-player.velocity.x < player.max_x_speed)
             {
-                if (sprite_in_air)
-                    sprite_velocity.x -= sprite_acceleration_air;
+                if (player.is_in_air)
+                    player.velocity.x -= player.acceleration_air;
                 else
-                    sprite_velocity.x -= sprite_acceleration;
+                    player.velocity.x -= player.acceleration;
             }
             ++sprite_frame_counter;
         }
-        else if (fabs(sprite_velocity.x) < sprite_acceleration)
-            sprite_velocity.x = 0;
-        else if (sprite_velocity.x > 0)
-            sprite_velocity.x -= sprite_acceleration;
-        else if (sprite_velocity.x < 0)
-            sprite_velocity.x += sprite_acceleration;
+        else if (fabs(player.velocity.x) < player.acceleration)
+            player.velocity.x = 0;
+        else if (player.velocity.x > 0)
+            player.velocity.x -= player.acceleration;
+        else if (player.velocity.x < 0)
+            player.velocity.x += player.acceleration;
 
         // Jump
-        if (jumps_left > 0
+        if (player.jumps_left > 0
             && (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_UP)
                 || IsKeyPressed(KEY_W)))
         {
-            sprite_velocity.y = jump_velocity;
-            sprite_in_air     = true;
-            --jumps_left;
+            player.velocity.y = player.jump_velocity;
+            player.is_in_air = true;
+            --(player.jumps_left);
         }
 
         // Falls while in air
-        if (sprite_in_air)
-            sprite_velocity.y += gravity_acceleration;
+        if (player.is_in_air)
+            player.velocity.y += gravity_acceleration;
         // Stops falling at ground
-        if (sprite_position.y > GROUND)
+        if (player.position.y > GROUND)
         {
-            sprite_in_air     = false;
-            sprite_velocity.y = 0;
-            sprite_position.y = GROUND;
-            jumps_left        = max_jumps;
+            player.is_in_air = false;
+            player.velocity.y = 0;
+            player.position.y = GROUND;
+            player.jumps_left = player.max_jumps;
         }
 
-        sprite_position.x += sprite_velocity.x;
-        sprite_position.y += sprite_velocity.y;
+        player.position.x += player.velocity.x;
+        player.position.y += player.velocity.y;
 
         if (sprite_frame_counter >= FPS / sprite_frame_rate)
         {
@@ -209,7 +221,8 @@ int main(void)
                 15 + (int)frame_rectangle.x, 40 + (int)frame_rectangle.y,
                 (int)frame_rectangle.width, (int)frame_rectangle.height, RED);
             // Draw target frame of the sprite
-            DrawTextureRec(scarfy, frame_rectangle, sprite_position, WHITE);
+            DrawTextureRec(scarfy, frame_rectangle, player.position, WHITE);
+            DrawRectangle(0, GROUND, screen_width, 20, GRAY);
         }
         EndDrawing();
         //----------------------------------------------------------------------
