@@ -1,6 +1,5 @@
 ---
 BasedOnStyle: Microsoft
-AlignConsecutiveAssignments: 'true'
 AlignConsecutiveDeclarations: 'true'
 BreakBeforeBinaryOperators: NonAssignment
 ColumnLimit: '80'

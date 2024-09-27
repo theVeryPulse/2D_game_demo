@@ -27,9 +27,7 @@ typedef struct Player
     Direction direction;
 } Player;
 
-
 Player  build_player(float pos_x, float pos_y);
 Vector2 get_texture_position(const Player* player);
-
 
 #endif
