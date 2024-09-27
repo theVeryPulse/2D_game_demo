@@ -66,6 +66,7 @@
 
 #include "raylib.h"
 #include <math.h>
+#include <stdio.h>
 
 #define FPS 60
 #define MAX_FRAME_RATE 15
@@ -114,14 +115,24 @@ Player build_player(float pos_x, float pos_y)
     player.frame_rectangle = (Rectangle){0.0f, 0.0f,
                                          (float)player.texture.width / 6,
                                          (float)player.texture.height};
+    player.direction = Right;
     return player;
 }
 
-// Vector2 get_texture_position(const Player* player)
-// {
-//     if (player->direction == Right)
-//         return (Vector2){.x = player->position.x, }
-// }
+Vector2 get_texture_position(const Player* player)
+{
+    Vector2 position;
+    if (player->direction == Right)
+        position.x = player->position.x
+                     - (float)player->frame_rectangle.width / 2;
+    else if(player->direction == Left)
+        position.x = player->position.x
+                     + (float)player->frame_rectangle.width / 2;
+    else
+        printf("WARNING: get_texture_position: undefined direction.\n");
+    position.y = player->position.y - player->frame_rectangle.height;
+    return position;
+}
 
 int main(void)
 {
@@ -168,6 +179,7 @@ int main(void)
                     player.velocity.x += player.acceleration;
             }
             ++sprite_frame_counter;
+            player.direction = Right;
         }
         else if (player.position.x > 0
                  && (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)))
@@ -182,6 +194,7 @@ int main(void)
                     player.velocity.x -= player.acceleration;
             }
             ++sprite_frame_counter;
+            player.direction = Left;
         }
         else if (fabs(player.velocity.x) < player.acceleration)
             player.velocity.x = 0;
@@ -242,12 +255,11 @@ int main(void)
             // Pseudo ground
             DrawRectangle(0, GROUND - 20, screen_width, 50, GRAY);
             // Draw target frame of the sprite
-            // Vector2 texture_postiion = get_texture_position(&player);
-            Vector2 texture_position = (Vector2){
-                player.position.x - (float)player.frame_rectangle.width / 2,
-                player.position.y - (float)player.frame_rectangle.height};
+            Vector2 texture_position = get_texture_position(&player);
             DrawTextureRec(player.texture, player.frame_rectangle,
                            texture_position, WHITE);
+            // Position indicator
+            DrawCircle(player.position.x, player.position.y, 5, RED);
         }
         EndDrawing();
         //----------------------------------------------------------------------
@@ -256,7 +268,7 @@ int main(void)
     // De-Initialization
     //--------------------------------------------------------------------------
     UnloadTexture(player.texture); // Texture unloading
-    CloseWindow();         // Close window and OpenGL context
+    CloseWindow();                 // Close window and OpenGL context
     //--------------------------------------------------------------------------
 
     return 0;
