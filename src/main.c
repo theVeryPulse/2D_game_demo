@@ -64,75 +64,13 @@
      - raylib.com/examples/<category>/<category>_example_name.js
 */
 
+#include "player/inc/player.h"
 #include "raylib.h"
-#include <math.h>
-#include <stdio.h>
+#include <math.h> // fabs()
 
 #define FPS 60
-#define MAX_FRAME_RATE 15
-#define MIN_FRAME_RATE 1
 
 #define GROUND 720
-
-typedef enum Direction
-{
-    UndefinedDirection,
-    Left,
-    Right,
-} Direction;
-
-typedef struct Player
-{
-    Vector2   position;
-    Vector2   velocity;
-    float     acceleration;
-    float     acceleration_air;
-    float     max_x_speed;
-    float     max_y_speed;
-    float     jump_velocity;
-    int       max_jumps;
-    int       jumps_left;
-    bool      is_in_air;
-    Texture2D texture;
-    Rectangle frame_rectangle;
-    Direction direction;
-} Player;
-
-Player build_player(float pos_x, float pos_y)
-{
-    Player player;
-    player.position = (Vector2){.x = pos_x, .y = pos_y};
-    player.velocity = (Vector2){.x = 0.0f, .y = 0.0f};
-    player.acceleration = 0.7f;
-    player.acceleration_air = 0.1f;
-    player.max_x_speed = 5;
-    player.max_y_speed = 5;
-    player.jump_velocity = -20.0f;
-    player.max_jumps = 2;
-    player.jumps_left = player.max_jumps;
-    player.is_in_air = false;
-    player.texture = LoadTexture("resources/scarfy.png");
-    player.frame_rectangle = (Rectangle){0.0f, 0.0f,
-                                         (float)player.texture.width / 6,
-                                         (float)player.texture.height};
-    player.direction = Right;
-    return player;
-}
-
-Vector2 get_texture_position(const Player* player)
-{
-    Vector2 position;
-    if (player->direction == Right)
-        position.x = player->position.x
-                     - (float)player->frame_rectangle.width / 2;
-    else if (player->direction == Left)
-        position.x = player->position.x
-                     + (float)player->frame_rectangle.width / 2;
-    else
-        printf("WARNING: get_texture_position: undefined direction.\n");
-    position.y = player->position.y - player->frame_rectangle.height;
-    return position;
-}
 
 int main(void)
 {
