@@ -125,7 +125,7 @@ Vector2 get_texture_position(const Player* player)
     if (player->direction == Right)
         position.x = player->position.x
                      - (float)player->frame_rectangle.width / 2;
-    else if(player->direction == Left)
+    else if (player->direction == Left)
         position.x = player->position.x
                      + (float)player->frame_rectangle.width / 2;
     else
@@ -165,6 +165,9 @@ int main(void)
         // Update
         //----------------------------------------------------------------------
 
+        if ((player.position.x < 0 && player.velocity.x < 0)
+            || (player.position.x > screen_width && player.velocity.x > 0))
+            player.velocity.x = 0;
         // Moves left/right
         if (player.position.x < screen_width
             && (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)))
@@ -196,12 +199,15 @@ int main(void)
             ++sprite_frame_counter;
             player.direction = Left;
         }
-        else if (fabs(player.velocity.x) < player.acceleration)
-            player.velocity.x = 0;
-        else if (player.velocity.x > 0)
-            player.velocity.x -= player.acceleration;
-        else if (player.velocity.x < 0)
-            player.velocity.x += player.acceleration;
+        else if (!player.is_in_air)
+        {
+            if (fabs(player.velocity.x) < player.acceleration)
+                player.velocity.x = 0;
+            else if (player.velocity.x > 0)
+                player.velocity.x -= player.acceleration;
+            else if (player.velocity.x < 0)
+                player.velocity.x += player.acceleration;
+        }
 
         // Jump
         if (player.jumps_left > 0
