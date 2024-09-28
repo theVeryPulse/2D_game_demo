@@ -27,7 +27,8 @@ typedef struct Player
     Direction direction;
 } Player;
 
-Player  build_player(float pos_x, float pos_y);
-void    draw_player(const Player* player);
+Player    build_player(float pos_x, float pos_y);
+void      draw_player(const Player* player);
+Rectangle get_player_hitbox(const Player* player);
 
 #endif

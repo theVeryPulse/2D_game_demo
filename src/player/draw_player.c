@@ -15,6 +15,8 @@ void draw_player(const Player* player)
                     get_texture_position(player), WHITE);
     // Position indicator
     DrawCircle(player->position.x, player->position.y, 5, RED);
+    Rectangle hitbox = get_player_hitbox(player);
+    DrawRectangleLines(hitbox.x, hitbox.y, hitbox.width, hitbox.height, GREEN);
 }
 
 /**
