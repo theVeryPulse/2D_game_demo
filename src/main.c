@@ -9,6 +9,7 @@ int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------
+
     const int screen_width = 1920;
     const int screen_height = 1080;
 
@@ -31,30 +32,30 @@ int main(void)
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
-        // User Input and Update
+        // User Input
         //----------------------------------------------------------------------
+        handle_player_move(&player, screen_width);
+        handle_player_jump(&player);
+        // ---------------------------------------------------------------------
 
+        // Update
+        // ---------------------------------------------------------------------
         if ((player.position.x < 0 && player.velocity.x < 0)
             || (player.position.x > screen_width && player.velocity.x > 0))
             player.velocity.x = 0;
         if (!aabb_collision(floor, get_player_hitbox(&player)))
             player.is_in_air = true;
-
-        handle_player_move(&player, screen_width);
-        handle_player_jump(&player);
-
-        // Falls while in air
         if (player.is_in_air)
-            player.velocity.y += gravity_acceleration;
-        // Stops falling at ground
-        if (player.is_in_air
-            && aabb_collision(floor, get_player_hitbox(&player)))
         {
-            player.is_in_air = false;
-            player.velocity.y = 0;
-            player.position.y = floor.y + 1; // collide to prevent falling
-            player.jumps_left = player.max_jumps;
-            printf("Jumps reset.\n"); // test code
+            player.velocity.y += gravity_acceleration;
+            if (aabb_collision(floor, get_player_hitbox(&player)))
+            {
+                player.is_in_air = false;
+                player.velocity.y = 0;
+                player.position.y = floor.y + 1; // collide to prevent falling
+                player.jumps_left = player.max_jumps;
+                printf("Jumps reset.\n"); // test code
+            }
         }
 
         player.position.x += player.velocity.x;
