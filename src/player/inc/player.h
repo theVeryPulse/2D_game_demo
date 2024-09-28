@@ -28,6 +28,6 @@ typedef struct Player
 } Player;
 
 Player  build_player(float pos_x, float pos_y);
-Vector2 get_texture_position(const Player* player);
+void    draw_player(const Player* player);
 
 #endif

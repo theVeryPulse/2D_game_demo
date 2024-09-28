@@ -94,13 +94,15 @@ int main(void)
 
     const float gravity_acceleration = 0.8f;
 
+    Rectangle floor = {
+        .x = 0, .y = GROUND - 20, .width = screen_width, .height = 50};
     SetTargetFPS(FPS);
     //--------------------------------------------------------------------------
 
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
-        // Update
+        // User Input and Update
         //----------------------------------------------------------------------
 
         if ((player.position.x < 0 && player.velocity.x < 0)
@@ -187,8 +189,16 @@ int main(void)
         //----------------------------------------------------------------------
         BeginDrawing();
         {
+            /* Painter's Algorithm:
+             * 1. Clear the screen
+             * 2. Draw The Farthest Background
+             * 3. Draw The Second Farthest Background
+             * 4. Draw The Tile Map
+             * 5. Draw The enemies and obstacles
+             * 6. Draw The Player
+             * 7. Display everything on screen
+             */
             ClearBackground(RAYWHITE);
-            // Draw everything:
             DrawTexture(player.texture, 15, 40, WHITE);
             DrawRectangleLines(15, 40, player.texture.width,
                                player.texture.height, LIME);
@@ -196,14 +206,8 @@ int main(void)
                                40 + (int)player.frame_rectangle.y,
                                (int)player.frame_rectangle.width,
                                (int)player.frame_rectangle.height, RED);
-            // Pseudo ground
-            DrawRectangle(0, GROUND - 20, screen_width, 50, GRAY);
-            // Draw target frame of the sprite
-            Vector2 texture_position = get_texture_position(&player);
-            DrawTextureRec(player.texture, player.frame_rectangle,
-                           texture_position, WHITE);
-            // Position indicator
-            DrawCircle(player.position.x, player.position.y, 5, RED);
+            DrawRectangleRec(floor, GRAY);
+            draw_player(&player);
         }
         EndDrawing();
         //----------------------------------------------------------------------
