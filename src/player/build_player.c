@@ -19,7 +19,7 @@ Player build_player(float pos_x, float pos_y)
     player.jump_velocity = -20.0f;
     player.max_jumps = 2;
     player.jumps_left = player.max_jumps;
-    player.is_in_air = false;
+    player.is_in_air = true;
     player.texture = LoadTexture("resources/scarfy.png");
     player.frame_rectangle = (Rectangle){0.0f, 0.0f,
                                          (float)player.texture.width / 6,
