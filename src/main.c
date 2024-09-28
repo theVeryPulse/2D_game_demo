@@ -41,52 +41,14 @@ int main(void)
         if (!aabb_collision(floor, get_player_hitbox(&player)))
             player.is_in_air = true;
         // Moves left/right
-        if (player.position.x < screen_width
-            && (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)))
-        {
-            if (player.frame_rectangle.width < 0)
-                player.frame_rectangle.width = -player.frame_rectangle.width;
-            if (player.velocity.x < player.max_x_speed)
-            {
-                if (player.is_in_air)
-                    player.velocity.x += player.acceleration_air;
-                else
-                    player.velocity.x += player.acceleration;
-            }
-            ++(player.frame_counter);
-            player.direction = Right;
-        }
-        else if (player.position.x > 0
-                 && (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)))
-        {
-            if (player.frame_rectangle.width > 0)
-                player.frame_rectangle.width = -player.frame_rectangle.width;
-            if (-player.velocity.x < player.max_x_speed)
-            {
-                if (player.is_in_air)
-                    player.velocity.x -= player.acceleration_air;
-                else
-                    player.velocity.x -= player.acceleration;
-            }
-            ++(player.frame_counter);
-            player.direction = Left;
-        }
-        else if (!player.is_in_air)
-        {
-            if (fabs(player.velocity.x) < player.acceleration)
-                player.velocity.x = 0;
-            else if (player.velocity.x > 0)
-                player.velocity.x -= player.acceleration;
-            else if (player.velocity.x < 0)
-                player.velocity.x += player.acceleration;
-        }
+        handle_player_move(&player, screen_width);
 
         // Jump
         if (player.jumps_left > 0
             && (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_UP)
                 || IsKeyPressed(KEY_W)))
         {
-            player.position.y -= 2; // move player away from floor
+            player.position.y -= 2; // lift player up from possible floor
             player.velocity.y = player.jump_velocity;
             player.is_in_air = true;
             --(player.jumps_left);
