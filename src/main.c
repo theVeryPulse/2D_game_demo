@@ -1,7 +1,6 @@
 #include "player/inc/player.h"
 #include "collision/inc/collision.h"
 #include "raylib.h"
-#include <math.h>  // fabs()
 #include <stdio.h> // printf()
 
 #define FPS 60
@@ -40,19 +39,9 @@ int main(void)
             player.velocity.x = 0;
         if (!aabb_collision(floor, get_player_hitbox(&player)))
             player.is_in_air = true;
-        // Moves left/right
-        handle_player_move(&player, screen_width);
 
-        // Jump
-        if (player.jumps_left > 0
-            && (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_UP)
-                || IsKeyPressed(KEY_W)))
-        {
-            player.position.y -= 2; // lift player up from possible floor
-            player.velocity.y = player.jump_velocity;
-            player.is_in_air = true;
-            --(player.jumps_left);
-        }
+        handle_player_move(&player, screen_width);
+        handle_player_jump(&player);
 
         // Falls while in air
         if (player.is_in_air)
