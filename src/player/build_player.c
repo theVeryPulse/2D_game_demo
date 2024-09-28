@@ -9,7 +9,7 @@
  */
 Player build_player(float pos_x, float pos_y)
 {
-    Player player;
+    Player player = {0};
     player.position = (Vector2){.x = pos_x, .y = pos_y};
     player.velocity = (Vector2){.x = 0.0f, .y = 0.0f};
     player.acceleration = 0.7f;
@@ -25,5 +25,8 @@ Player build_player(float pos_x, float pos_y)
                                          (float)player.texture.width / 6,
                                          (float)player.texture.height};
     player.direction = Right;
+    player.frame_rate = 8;
+    player.frame_index = 0;
+    player.frame_counter = 0;
     return player;
 }

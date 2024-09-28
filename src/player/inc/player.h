@@ -25,6 +25,9 @@ typedef struct Player
     Texture2D texture;
     Rectangle frame_rectangle;
     Direction direction;
+    int       frame_rate;
+    int       frame_index;
+    int       frame_counter;
 } Player;
 
 Player    build_player(float pos_x, float pos_y);

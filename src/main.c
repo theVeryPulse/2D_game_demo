@@ -86,10 +86,6 @@ int main(void)
     // NOTE: Textures MUST be loaded after Window initialization (OpenGL context
     // is required)
 
-    const int sprite_frame_rate = 8;
-    int       sprite_frame_index = 0;
-    int       sprite_frame_counter = 0;
-
     Player player = build_player(screen_width / 2, GROUND);
 
     const float gravity_acceleration = 0.8f;
@@ -121,7 +117,7 @@ int main(void)
                 else
                     player.velocity.x += player.acceleration;
             }
-            ++sprite_frame_counter;
+            ++(player.frame_counter);
             player.direction = Right;
         }
         else if (player.position.x > 0
@@ -136,7 +132,7 @@ int main(void)
                 else
                     player.velocity.x -= player.acceleration;
             }
-            ++sprite_frame_counter;
+            ++(player.frame_counter);
             player.direction = Left;
         }
         else if (!player.is_in_air)
@@ -174,13 +170,13 @@ int main(void)
         player.position.x += player.velocity.x;
         player.position.y += player.velocity.y;
 
-        if (sprite_frame_counter >= FPS / sprite_frame_rate)
+        if (player.frame_counter >= FPS / player.frame_rate)
         {
-            sprite_frame_counter = 0;
-            ++sprite_frame_index;
-            if (sprite_frame_index > 5)
-                sprite_frame_index = 0;
-            player.frame_rectangle.x = (float)sprite_frame_index
+            player.frame_counter = 0;
+            ++(player.frame_index);
+            if (player.frame_index > 5)
+                player.frame_index = 0;
+            player.frame_rectangle.x = (float)player.frame_index
                                        * (float)player.texture.width / 6;
         }
         //----------------------------------------------------------------------
