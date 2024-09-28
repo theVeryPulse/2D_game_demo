@@ -40,23 +40,16 @@ int main(void)
 
         // Update
         // ---------------------------------------------------------------------
+        if (aabb_collision(floor, get_player_hitbox(&player)))
+            solve_collision(&player, floor);
+        else
+            player.is_in_air = true;
+
         if ((player.position.x < 0 && player.velocity.x < 0)
             || (player.position.x > screen_width && player.velocity.x > 0))
             player.velocity.x = 0;
-        if (!aabb_collision(floor, get_player_hitbox(&player)))
-            player.is_in_air = true;
         if (player.is_in_air)
-        {
             player.velocity.y += gravity_acceleration;
-            if (aabb_collision(floor, get_player_hitbox(&player)))
-            {
-                player.is_in_air = false;
-                player.velocity.y = 0;
-                player.position.y = floor.y + 1; // collide to prevent falling
-                player.jumps_left = player.max_jumps;
-                printf("Jumps reset.\n"); // test code
-            }
-        }
 
         player.position.x += player.velocity.x;
         player.position.y += player.velocity.y;
