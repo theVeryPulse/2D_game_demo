@@ -6,6 +6,9 @@
 
 #define FPS 60
 
+static void draw_scene(const Player* player, const Rectangle* objects,
+                       int object_count, const Enemy* enemy);
+
 int main(void)
 {
     // Initialization
@@ -47,24 +50,9 @@ int main(void)
     {
         if (player.respawn_countdown > 0)
         {
+            draw_scene(&player, objects, sizeof(objects) / sizeof(objects[0]),
+                       &enemy);
             --(player.respawn_countdown);
-            BeginDrawing();
-            {
-
-                ClearBackground(RAYWHITE);
-                DrawTexture(player.texture, 15, 40, WHITE);
-                DrawRectangleLines(15, 40, player.texture.width,
-                                   player.texture.height, LIME);
-                DrawRectangleLines(15 + (int)player.frame_rectangle.x,
-                                   40 + (int)player.frame_rectangle.y,
-                                   (int)player.frame_rectangle.width,
-                                   (int)player.frame_rectangle.height, RED);
-                for (int i = 0; i < sizeof(objects) / sizeof(objects[0]); ++i)
-                    DrawRectangleRec(objects[i], GRAY);
-                draw_player(&player);
-                DrawRectangleRec(enemy.hurtbox, enemy.color);
-            }
-            EndDrawing();
             continue;
         }
         if (player.status == Dead)
@@ -154,31 +142,8 @@ int main(void)
 
         // Draw
         //----------------------------------------------------------------------
-        BeginDrawing();
-        {
-            /* Painter's Algorithm:
-             * 1. Clear the screen
-             * 2. Draw The Farthest Background
-             * 3. Draw The Second Farthest Background
-             * 4. Draw The Tile Map
-             * 5. Draw The enemies and obstacles
-             * 6. Draw The Player
-             * 7. Display everything on screen
-             */
-            ClearBackground(RAYWHITE);
-            DrawTexture(player.texture, 15, 40, WHITE);
-            DrawRectangleLines(15, 40, player.texture.width,
-                               player.texture.height, LIME);
-            DrawRectangleLines(15 + (int)player.frame_rectangle.x,
-                               40 + (int)player.frame_rectangle.y,
-                               (int)player.frame_rectangle.width,
-                               (int)player.frame_rectangle.height, RED);
-            for (int i = 0; i < sizeof(objects) / sizeof(objects[0]); ++i)
-                DrawRectangleRec(objects[i], GRAY);
-            draw_player(&player);
-            DrawRectangleRec(enemy.hurtbox, enemy.color);
-        }
-        EndDrawing();
+        draw_scene(&player, objects, sizeof(objects) / sizeof(objects[0]),
+                   &enemy);
         //----------------------------------------------------------------------
     }
 
@@ -189,4 +154,42 @@ int main(void)
     //--------------------------------------------------------------------------
 
     return 0;
+}
+
+/**
+ * @brief Draw the new frame for entire window
+ *
+ * @param player Pointer to player struct
+ * @param objects Pointer to objects array
+ * @param object_count Number of objects in the array
+ * @param enemy Pointer to enemy struct
+ * @note
+ * Painter's Algorithm:
+ * 1. Clear the screen
+ * 2. Draw The Farthest Background
+ * 3. Draw The Second Farthest Background
+ * 4. Draw The Tile Map
+ * 5. Draw The enemies and obstacles
+ * 6. Draw The Player
+ * 7. Display everything on screen
+ */
+static void draw_scene(const Player* player, const Rectangle* objects,
+                       int object_count, const Enemy* enemy)
+{
+    BeginDrawing();
+    {
+        ClearBackground(RAYWHITE);
+        DrawTexture(player->texture, 15, 40, WHITE);
+        DrawRectangleLines(15, 40, player->texture.width,
+                           player->texture.height, LIME);
+        DrawRectangleLines(15 + (int)player->frame_rectangle.x,
+                           40 + (int)player->frame_rectangle.y,
+                           (int)player->frame_rectangle.width,
+                           (int)player->frame_rectangle.height, RED);
+        for (int i = 0; i < object_count; ++i)
+            DrawRectangleRec(objects[i], GRAY);
+        draw_player(player);
+        DrawRectangleRec(enemy->hurtbox, enemy->color);
+    }
+    EndDrawing();
 }
