@@ -22,7 +22,7 @@ void solve_collision(Player* player, Rectangle object)
             player->position.y = object.y + 1;
             player->jumps_left = player->max_jumps;
             player->is_in_air = false;
-            printf("Jumps reset.\n"); // test code
+            // printf("Jumps reset.\n"); // test code
         }
         else if (player->velocity.y < 0) // Player bumps on object
             player->position.y = object.y + object.height;

@@ -14,7 +14,7 @@ void handle_player_move(Player* player, int screen_width)
         && (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)))
     {
         if (player->frame_rectangle.width < 0)
-            player->frame_rectangle.width = -player->frame_rectangle.width;
+            player->frame_rectangle.width *= -1;
         if (player->velocity.x < player->max_x_speed)
         {
             if (player->is_in_air)
@@ -24,12 +24,13 @@ void handle_player_move(Player* player, int screen_width)
         }
         ++(player->frame_counter);
         player->direction = Right;
+        player->is_in_air = true;
     }
     else if (player->position.x > 0
              && (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)))
     {
         if (player->frame_rectangle.width > 0)
-            player->frame_rectangle.width = -player->frame_rectangle.width;
+            player->frame_rectangle.width *= -1;
         if (-player->velocity.x < player->max_x_speed)
         {
             if (player->is_in_air)
@@ -39,6 +40,7 @@ void handle_player_move(Player* player, int screen_width)
         }
         ++(player->frame_counter);
         player->direction = Left;
+        player->is_in_air = true;
     }
     else if (!player->is_in_air)
     {

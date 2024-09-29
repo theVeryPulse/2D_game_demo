@@ -20,12 +20,18 @@ int main(void)
     // NOTE: Textures MUST be loaded after Window initialization (OpenGL context
     // is required)
 
-    Player player = build_player(screen_width / 2, screen_height / 2);
+    Player player = build_player(100, 600);
 
     const float gravity_acceleration = 0.8f;
 
-    Rectangle floor = {
-        .x = 0, .y = 700, .width = screen_width / 1.5, .height = 50};
+    Rectangle objects[] = {
+        {.x = 0,
+         .y = screen_height - 200,
+         .width = screen_width,
+         .height = 200},
+        {.x = 200, .y = screen_height - 400, .width = 250, .height = 200},
+        {.x = 700, .y = 300, .width = 200, .height = 100},
+        {.x = 1200, .y = screen_height - 400, .width = 250, .height = 200}};
     SetTargetFPS(FPS);
     //--------------------------------------------------------------------------
 
@@ -40,10 +46,6 @@ int main(void)
 
         // Update
         // ---------------------------------------------------------------------
-        if (aabb_collision(floor, get_player_hitbox(&player)))
-            solve_collision(&player, floor);
-        else
-            player.is_in_air = true;
 
         if ((player.position.x < 0 && player.velocity.x < 0)
             || (player.position.x > screen_width && player.velocity.x > 0))
@@ -51,8 +53,47 @@ int main(void)
         if (player.is_in_air)
             player.velocity.y += gravity_acceleration;
 
+        // Interleaving single-axis movement and collision detection
         player.position.x += player.velocity.x;
+        for (int i = 0; i < sizeof(objects) / sizeof(objects[0]); ++i)
+        {
+            Rectangle hitbox = get_player_hitbox(&player);
+            if (aabb_collision(objects[i], hitbox))
+            {
+                if (player.velocity.x > 0) // going right
+                {
+                    player.position.x = objects[i].x - hitbox.width / 2 - 0.1f;
+                }
+                else if (player.velocity.x < 0) // going left
+                {
+                    player.position.x = objects[i].x + objects[i].width
+                                        + hitbox.width / 2 + 0.1f;
+                }
+                player.velocity.x = 0;
+            }
+        }
+
         player.position.y += player.velocity.y;
+        for (int i = 0; i < sizeof(objects) / sizeof(objects[0]); ++i)
+        {
+            if (aabb_collision(objects[i], get_player_hitbox(&player)))
+            {
+                if (player.velocity.y > 0)
+                {
+                    // player lands on object
+                    player.position.y = objects[i].y;
+                    player.is_in_air = false;
+                    player.jumps_left = player.max_jumps;
+                    printf("Jump reset\n");
+                }
+                else if (player.velocity.y < 0)
+                {
+                    player.position.y = objects[i].y + objects[i].height
+                                        + get_player_hitbox(&player).height;
+                }
+                player.velocity.y = 0;
+            }
+        }
 
         if (player.frame_counter >= FPS / player.frame_rate)
         {
@@ -86,7 +127,8 @@ int main(void)
                                40 + (int)player.frame_rectangle.y,
                                (int)player.frame_rectangle.width,
                                (int)player.frame_rectangle.height, RED);
-            DrawRectangleRec(floor, GRAY);
+            for (int i = 0; i < sizeof(objects) / sizeof(objects[0]); ++i)
+                DrawRectangleRec(objects[i], GRAY);
             draw_player(&player);
         }
         EndDrawing();
