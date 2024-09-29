@@ -1,14 +1,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "../../Direction.h"
 #include "raylib.h"
-
-typedef enum Direction
-{
-    UndefinedDirection,
-    Left,
-    Right,
-} Direction;
 
 typedef struct Player
 {

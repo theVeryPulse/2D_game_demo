@@ -24,14 +24,17 @@ int main(void)
 
     const float gravity_acceleration = 0.8f;
 
-    Rectangle objects[] = {
-        {.x = 0,
-         .y = screen_height - 200,
-         .width = screen_width,
-         .height = 200},
-        {.x = 200, .y = screen_height - 400, .width = 250, .height = 200},
-        {.x = 700, .y = 300, .width = 200, .height = 100},
-        {.x = 1200, .y = screen_height - 400, .width = 250, .height = 200}};
+    Rectangle floor = {
+        .x = 0, .y = screen_height - 200, .width = screen_width, .height = 200};
+    Rectangle left_block = {
+        .x = 200, .y = screen_height - 400, .width = 250, .height = 200};
+    Rectangle right_block = {.x = 700, .y = 300, .width = 200, .height = 100};
+    Rectangle block_in_air = {
+        .x = 1200, .y = screen_height - 400, .width = 250, .height = 200};
+
+    Rectangle objects[] = {floor, left_block, right_block, block_in_air};
+
+    // Rectangle emenies[] = { {} } ;
     SetTargetFPS(FPS);
     //--------------------------------------------------------------------------
 
@@ -84,7 +87,7 @@ int main(void)
                     player.position.y = objects[i].y;
                     player.is_in_air = false;
                     player.jumps_left = player.max_jumps;
-                    printf("Jump reset\n");
+                    // printf("Jump reset\n");
                 }
                 else if (player.velocity.y < 0)
                 {
