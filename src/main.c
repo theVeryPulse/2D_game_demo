@@ -10,7 +10,7 @@
 static void draw_scene(const Player* player, const Rectangle objects[],
                        int object_count, const Enemy enemy[],
                        const Apple apples[], int apple_count,
-                       bool all_apples_collected);
+                       int collected_apple_count, bool all_apples_collected);
 static void update_player(Player* player, const Rectangle objects[],
                           int object_count, const Enemy* enemy);
 
@@ -70,7 +70,8 @@ int main(void)
         if (player.respawn_countdown > 0)
         {
             draw_scene(&player, objects, sizeof(objects) / sizeof(objects[0]),
-                       &enemy, apples, apple_count, all_apples_collected);
+                       &enemy, apples, apple_count, collected_apple_count,
+                       all_apples_collected);
             --(player.respawn_countdown);
             continue;
         }
@@ -118,7 +119,8 @@ int main(void)
         // Draw
         //----------------------------------------------------------------------
         draw_scene(&player, objects, sizeof(objects) / sizeof(objects[0]),
-                   &enemy, apples, apple_count, all_apples_collected);
+                   &enemy, apples, apple_count, collected_apple_count,
+                   all_apples_collected);
         //----------------------------------------------------------------------
     }
 
@@ -151,7 +153,7 @@ int main(void)
 static void draw_scene(const Player* player, const Rectangle objects[],
                        int object_count, const Enemy enemy[],
                        const Apple apples[], int apple_count,
-                       bool all_apples_collected)
+                       int collected_apple_count, bool all_apples_collected)
 {
     BeginDrawing();
     {
@@ -168,8 +170,13 @@ static void draw_scene(const Player* player, const Rectangle objects[],
         for (int i = 0; i < object_count; ++i)
             DrawRectangleRec(objects[i], GRAY);
         for (int i = 0; i < apple_count; ++i)
+        {
             if (apples[i].status == NotCollected)
                 DrawRectangleRec(apples[i].box, GREEN);
+            DrawRectangleLines(i * 50 + 10, 10, 40, 40, GREEN);
+        }
+        for (int i = 0; i < collected_apple_count; ++i)
+            DrawRectangle(i * 50 + 10, 10, 40, 40, GREEN);
         draw_player(player);
         DrawRectangleRec(enemy->hurtbox, enemy->color);
         if (all_apples_collected)
