@@ -8,6 +8,7 @@
 	},
 	"files.associations": {
 		"stdio.h": "c",
-		"player.h": "c"
+		"player.h": "c",
+		"direction.h": "c"
 	}
 }

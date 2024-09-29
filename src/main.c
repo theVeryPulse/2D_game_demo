@@ -1,5 +1,6 @@
 #include "player/inc/player.h"
 #include "collision/inc/collision.h"
+#include "enemy/inc/enemy.h"
 #include "raylib.h"
 #include <stdio.h> // printf()
 
@@ -20,19 +21,24 @@ int main(void)
     // NOTE: Textures MUST be loaded after Window initialization (OpenGL context
     // is required)
 
-    Player player = build_player(100, 600);
-
+    Player      player = build_player(100, 600);
     const float gravity_acceleration = 0.8f;
 
     Rectangle floor = {
         .x = 0, .y = screen_height - 200, .width = screen_width, .height = 200};
     Rectangle left_block = {
         .x = 200, .y = screen_height - 400, .width = 250, .height = 200};
-    Rectangle right_block = {.x = 700, .y = 300, .width = 200, .height = 100};
-    Rectangle block_in_air = {
+    Rectangle block_in_air = {.x = 700, .y = 300, .width = 200, .height = 100};
+    Rectangle right_block = {
         .x = 1200, .y = screen_height - 400, .width = 250, .height = 200};
 
     Rectangle objects[] = {floor, left_block, right_block, block_in_air};
+    Enemy enemy = build_enemy((Rectangle){.x = left_block.x + left_block.width,
+                                          .y = floor.y - 100.0f,
+                                          .height = 100.0f,
+                                          .width = 100.0f},
+                              left_block.x + left_block.width - 1,
+                              right_block.x - 100 + 1, RED, 2.0f);
 
     // Rectangle emenies[] = { {} } ;
     SetTargetFPS(FPS);
@@ -49,6 +55,8 @@ int main(void)
 
         // Update
         // ---------------------------------------------------------------------
+
+        update_enemy(&enemy);
 
         if ((player.position.x < 0 && player.velocity.x < 0)
             || (player.position.x > screen_width && player.velocity.x > 0))
@@ -133,6 +141,7 @@ int main(void)
             for (int i = 0; i < sizeof(objects) / sizeof(objects[0]); ++i)
                 DrawRectangleRec(objects[i], GRAY);
             draw_player(&player);
+            DrawRectangleRec(enemy.hurtbox, enemy.color);
         }
         EndDrawing();
         //----------------------------------------------------------------------
