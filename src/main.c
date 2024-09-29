@@ -58,12 +58,7 @@ int main(void)
             continue;
         }
         if (player.status == Dead)
-        {
-            player.position = (Vector2){100, 600};
-            player.velocity = (Vector2){0, 0};
-            player.status = Alive;
-            player.is_in_air = true;
-        }
+            respawn_player(&player, 100, 600);
 
         // User Input
         //----------------------------------------------------------------------
