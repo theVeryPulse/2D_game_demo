@@ -9,7 +9,8 @@
 
 static void draw_scene(const Player* player, const Rectangle objects[],
                        int object_count, const Enemy enemy[],
-                       const Apple apples[], int apple_count);
+                       const Apple apples[], int apple_count,
+                       bool all_apples_collected);
 static void update_player(Player* player, const Rectangle objects[],
                           int object_count, const Enemy* enemy);
 
@@ -58,6 +59,7 @@ int main(void)
                     .x = 1700, .y = floor.y - 50, .height = 50, .width = 50}}};
     int  apple_count = sizeof(apples) / sizeof(apples[0]);
     bool all_apples_collected = false;
+    int  collected_apple_count = 0;
 
     SetTargetFPS(FPS);
     //--------------------------------------------------------------------------
@@ -68,7 +70,7 @@ int main(void)
         if (player.respawn_countdown > 0)
         {
             draw_scene(&player, objects, sizeof(objects) / sizeof(objects[0]),
-                       &enemy, apples, apple_count);
+                       &enemy, apples, apple_count, all_apples_collected);
             --(player.respawn_countdown);
             continue;
         }
@@ -94,6 +96,8 @@ int main(void)
 
         update_player(&player, objects, sizeof(objects) / sizeof(objects[0]),
                       &enemy);
+
+        if (!all_apples_collected)
         {
             Rectangle hitbox = get_player_hitbox(&player);
             for (int i = 0; i < apple_count; ++i)
@@ -101,15 +105,20 @@ int main(void)
                 if (apples[i].status == Collected)
                     continue;
                 if (aabb_collision(apples[i].box, hitbox))
+                {
                     apples[i].status = Collected;
+                    ++collected_apple_count;
+                }
             }
         }
+        if (collected_apple_count == apple_count)
+            all_apples_collected = true;
         //----------------------------------------------------------------------
 
         // Draw
         //----------------------------------------------------------------------
         draw_scene(&player, objects, sizeof(objects) / sizeof(objects[0]),
-                   &enemy, apples, apple_count);
+                   &enemy, apples, apple_count, all_apples_collected);
         //----------------------------------------------------------------------
     }
 
@@ -141,11 +150,13 @@ int main(void)
  */
 static void draw_scene(const Player* player, const Rectangle objects[],
                        int object_count, const Enemy enemy[],
-                       const Apple apples[], int apple_count)
+                       const Apple apples[], int apple_count,
+                       bool all_apples_collected)
 {
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
+        /* // Display frame reference
         DrawTexture(player->texture, 15, 40, WHITE);
         DrawRectangleLines(15, 40, player->texture.width,
                            player->texture.height, LIME);
@@ -153,6 +164,7 @@ static void draw_scene(const Player* player, const Rectangle objects[],
                            40 + (int)player->frame_rectangle.y,
                            (int)player->frame_rectangle.width,
                            (int)player->frame_rectangle.height, RED);
+        // */
         for (int i = 0; i < object_count; ++i)
             DrawRectangleRec(objects[i], GRAY);
         for (int i = 0; i < apple_count; ++i)
@@ -160,6 +172,11 @@ static void draw_scene(const Player* player, const Rectangle objects[],
                 DrawRectangleRec(apples[i].box, GREEN);
         draw_player(player);
         DrawRectangleRec(enemy->hurtbox, enemy->color);
+        if (all_apples_collected)
+        {
+            DrawText("YOU WIN!", 900, 50, 30, GRAY);
+            DrawText("THANKS FOR PLAYING", 800, 100, 30, GRAY);
+        }
     }
     EndDrawing();
 }
