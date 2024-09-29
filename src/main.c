@@ -1,13 +1,15 @@
 #include "player/inc/player.h"
 #include "collision/inc/collision.h"
 #include "enemy/inc/enemy.h"
+#include "apple/inc/apple.h"
 #include "raylib.h"
 #include <stdio.h> // printf()
 
 #define FPS 60
 
-static void draw_scene(const Player* player, const Rectangle* objects,
-                       int object_count, const Enemy* enemy);
+static void draw_scene(const Player* player, const Rectangle objects[],
+                       int object_count, const Enemy enemy[],
+                       const Apple apples[], int apple_count);
 static void update_player(Player* player, const Rectangle objects[],
                           int object_count, const Enemy* enemy);
 
@@ -44,6 +46,17 @@ int main(void)
                                           .width = 100.0f},
                               left_block.x + left_block.width - 1,
                               right_block.x - 100 + 1, RED, 2.0f);
+
+    Apple apples[] = {
+        (Apple){NotCollected,
+                (Rectangle){.x = 775, .y = 250, .height = 50, .width = 50}},
+        (Apple){NotCollected,
+                (Rectangle){
+                    .x = 800, .y = floor.y - 50, .height = 50, .width = 50}},
+        (Apple){NotCollected,
+                (Rectangle){
+                    .x = 1700, .y = floor.y - 50, .height = 50, .width = 50}}};
+
     SetTargetFPS(FPS);
     //--------------------------------------------------------------------------
 
@@ -53,7 +66,7 @@ int main(void)
         if (player.respawn_countdown > 0)
         {
             draw_scene(&player, objects, sizeof(objects) / sizeof(objects[0]),
-                       &enemy);
+                       &enemy, apples, sizeof(apples) / sizeof(apples[0]));
             --(player.respawn_countdown);
             continue;
         }
@@ -84,7 +97,7 @@ int main(void)
         // Draw
         //----------------------------------------------------------------------
         draw_scene(&player, objects, sizeof(objects) / sizeof(objects[0]),
-                   &enemy);
+                   &enemy, apples, sizeof(apples) / sizeof(apples[0]));
         //----------------------------------------------------------------------
     }
 
@@ -114,8 +127,9 @@ int main(void)
  * 6. Draw The Player
  * 7. Display everything on screen
  */
-static void draw_scene(const Player* player, const Rectangle* objects,
-                       int object_count, const Enemy* enemy)
+static void draw_scene(const Player* player, const Rectangle objects[],
+                       int object_count, const Enemy enemy[],
+                       const Apple apples[], int apple_count)
 {
     BeginDrawing();
     {
@@ -129,6 +143,9 @@ static void draw_scene(const Player* player, const Rectangle* objects,
                            (int)player->frame_rectangle.height, RED);
         for (int i = 0; i < object_count; ++i)
             DrawRectangleRec(objects[i], GRAY);
+        for (int i = 0; i < apple_count; ++i)
+            if (apples[i].status == NotCollected)
+                DrawRectangleRec(apples[i].box, GREEN);
         draw_player(player);
         DrawRectangleRec(enemy->hurtbox, enemy->color);
     }
@@ -149,6 +166,7 @@ static void draw_scene(const Player* player, const Rectangle* objects,
 static void update_player(Player* player, const Rectangle objects[],
                           int object_count, const Enemy* enemy)
 {
+    // Update x-axis and solve collision
     player->position.x += player->velocity.x;
     for (int i = 0; i < object_count; ++i)
     {
@@ -168,6 +186,7 @@ static void update_player(Player* player, const Rectangle objects[],
         }
     }
 
+    // Update y-axis and solve collision
     player->position.y += player->velocity.y;
     for (int i = 0; i < object_count; ++i)
     {
