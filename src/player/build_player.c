@@ -28,5 +28,6 @@ Player build_player(float pos_x, float pos_y)
     player.frame_rate = 8;
     player.frame_index = 0;
     player.frame_counter = 0;
+    player.respawn_countdown = 0;
     return player;
 }

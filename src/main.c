@@ -39,14 +39,42 @@ int main(void)
                                           .width = 100.0f},
                               left_block.x + left_block.width - 1,
                               right_block.x - 100 + 1, RED, 2.0f);
-
-    // Rectangle emenies[] = { {} } ;
     SetTargetFPS(FPS);
     //--------------------------------------------------------------------------
 
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
+        if (player.respawn_countdown > 0)
+        {
+            --(player.respawn_countdown);
+            BeginDrawing();
+            {
+
+                ClearBackground(RAYWHITE);
+                DrawTexture(player.texture, 15, 40, WHITE);
+                DrawRectangleLines(15, 40, player.texture.width,
+                                   player.texture.height, LIME);
+                DrawRectangleLines(15 + (int)player.frame_rectangle.x,
+                                   40 + (int)player.frame_rectangle.y,
+                                   (int)player.frame_rectangle.width,
+                                   (int)player.frame_rectangle.height, RED);
+                for (int i = 0; i < sizeof(objects) / sizeof(objects[0]); ++i)
+                    DrawRectangleRec(objects[i], GRAY);
+                draw_player(&player);
+                DrawRectangleRec(enemy.hurtbox, enemy.color);
+            }
+            EndDrawing();
+            continue;
+        }
+        if (player.status == Dead)
+        {
+            player.position = (Vector2){100, 600};
+            player.velocity = (Vector2){0, 0};
+            player.status = Alive;
+            player.is_in_air = true;
+        }
+
         // User Input
         //----------------------------------------------------------------------
         handle_player_move(&player, screen_width);
@@ -114,6 +142,13 @@ int main(void)
                 player.frame_index = 0;
             player.frame_rectangle.x = (float)player.frame_index
                                        * (float)player.texture.width / 6;
+        }
+
+        if (aabb_collision(enemy.hurtbox, get_player_hitbox(&player)))
+        {
+            printf("Hits enemy.\n");
+            player.status = Dead;
+            player.respawn_countdown = FPS / 2;
         }
         //----------------------------------------------------------------------
 

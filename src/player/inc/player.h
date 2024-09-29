@@ -4,6 +4,12 @@
 #include "../../Direction.h"
 #include "raylib.h"
 
+typedef enum Status
+{
+    Alive,
+    Dead
+} Status;
+
 typedef struct Player
 {
     Vector2   position;
@@ -22,6 +28,8 @@ typedef struct Player
     int       frame_rate;
     int       frame_index;
     int       frame_counter;
+    Status    status;
+    int       respawn_countdown;
 } Player;
 
 Player    build_player(float pos_x, float pos_y);
