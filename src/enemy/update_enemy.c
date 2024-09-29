@@ -1,5 +1,10 @@
 #include "inc/enemy.h"
 
+/**
+ * @brief Makes enemy patrols between left and right boundaries.
+ * 
+ * @param enemy pointer to enemy struct.
+ */
 void update_enemy(Enemy* enemy)
 {
     enemy->hurtbox.x += enemy->patrol_velocity;
