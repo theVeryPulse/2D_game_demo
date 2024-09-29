@@ -56,6 +56,8 @@ int main(void)
         (Apple){NotCollected,
                 (Rectangle){
                     .x = 1700, .y = floor.y - 50, .height = 50, .width = 50}}};
+    int  apple_count = sizeof(apples) / sizeof(apples[0]);
+    bool all_apples_collected = false;
 
     SetTargetFPS(FPS);
     //--------------------------------------------------------------------------
@@ -66,7 +68,7 @@ int main(void)
         if (player.respawn_countdown > 0)
         {
             draw_scene(&player, objects, sizeof(objects) / sizeof(objects[0]),
-                       &enemy, apples, sizeof(apples) / sizeof(apples[0]));
+                       &enemy, apples, apple_count);
             --(player.respawn_countdown);
             continue;
         }
@@ -92,12 +94,22 @@ int main(void)
 
         update_player(&player, objects, sizeof(objects) / sizeof(objects[0]),
                       &enemy);
+        {
+            Rectangle hitbox = get_player_hitbox(&player);
+            for (int i = 0; i < apple_count; ++i)
+            {
+                if (apples[i].status == Collected)
+                    continue;
+                if (aabb_collision(apples[i].box, hitbox))
+                    apples[i].status = Collected;
+            }
+        }
         //----------------------------------------------------------------------
 
         // Draw
         //----------------------------------------------------------------------
         draw_scene(&player, objects, sizeof(objects) / sizeof(objects[0]),
-                   &enemy, apples, sizeof(apples) / sizeof(apples[0]));
+                   &enemy, apples, apple_count);
         //----------------------------------------------------------------------
     }
 
