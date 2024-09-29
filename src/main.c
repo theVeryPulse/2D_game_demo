@@ -67,6 +67,8 @@ int main(void)
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
+        // Short pause before respawn if player runs into enemy
+        // ---------------------------------------------------------------------
         if (player.respawn_countdown > 0)
         {
             draw_scene(&player, objects, sizeof(objects) / sizeof(objects[0]),
@@ -77,6 +79,7 @@ int main(void)
         }
         if (player.status == Dead)
             respawn_player(&player, 100, 600);
+        // ---------------------------------------------------------------------
 
         // User Input
         //----------------------------------------------------------------------
@@ -86,7 +89,6 @@ int main(void)
 
         // Update
         // ---------------------------------------------------------------------
-
         update_enemy(&enemy);
 
         if ((player.position.x < 0 && player.velocity.x < 0)
@@ -169,20 +171,15 @@ static void draw_scene(const Player* player, const Rectangle objects[],
         // */
         for (int i = 0; i < object_count; ++i)
             DrawRectangleRec(objects[i], GRAY);
-        for (int i = 0; i < apple_count; ++i)
-        {
-            if (apples[i].status == NotCollected)
-                DrawRectangleRec(apples[i].box, GREEN);
-            DrawRectangleLines(i * 50 + 10, 10, 40, 40, GREEN);
-        }
-        for (int i = 0; i < collected_apple_count; ++i)
-            DrawRectangle(i * 50 + 10, 10, 40, 40, GREEN);
+        draw_apples(apples, apple_count);
+        draw_apple_progress(apple_count, collected_apple_count);
         draw_player(player);
         DrawRectangleRec(enemy->hurtbox, enemy->color);
+
         if (all_apples_collected)
         {
-            DrawText("YOU WIN!", 900, 50, 30, GRAY);
-            DrawText("THANKS FOR PLAYING", 800, 100, 30, GRAY);
+            DrawText("YOU WIN!", 900, 50, 50, GRAY);
+            DrawText("THANKS FOR PLAYING", 830, 130, 30, GRAY);
         }
     }
     EndDrawing();

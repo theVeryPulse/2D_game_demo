@@ -15,4 +15,7 @@ typedef struct Apple
     Rectangle   box;
 } Apple;
 
+void draw_apples(const Apple apples[], int apple_count);
+void draw_apple_progress(int apple_count, int collected_apple_count);
+
 #endif /* APPLE_H */

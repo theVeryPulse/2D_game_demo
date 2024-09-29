@@ -9,6 +9,7 @@
 	"files.associations": {
 		"stdio.h": "c",
 		"player.h": "c",
-		"direction.h": "c"
+		"direction.h": "c",
+		"apple.h": "c"
 	}
 }
