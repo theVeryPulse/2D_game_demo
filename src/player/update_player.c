@@ -6,7 +6,6 @@
 
 /**
  * @brief Updates player position and solves collision. Updates texture frame.
- *        Checks enemy hit.
  *
  * @param player Pointer to player struct
  * @param objects Pointer to objects array
