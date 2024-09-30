@@ -1,6 +1,6 @@
 #include "inc/player.h"
 #include "../collision/inc/collision.h" // aabb_collision()
-#include <stdio.h> // printf()
+#include <stdio.h>                      // printf()
 
 #define FPS 60
 
@@ -11,12 +11,10 @@
  * @param player Pointer to player struct
  * @param objects Pointer to objects array
  * @param object_count Number of objects in array
- * @param enemy Pointer to enemy struct
  * @note
  * Method: Interleaving single-axis movement and collision detection
  */
-void update_player(Player* player, const Rectangle objects[], int object_count,
-                   const Enemy* enemy)
+void update_player(Player* player, const Rectangle objects[], int object_count)
 {
     // Update x-axis and solve collision
     player->position.x += player->velocity.x;
@@ -53,12 +51,5 @@ void update_player(Player* player, const Rectangle objects[], int object_count,
                                      + get_player_hitbox(player).height;
             player->velocity.y = 0;
         }
-    }
-
-    if (aabb_collision(enemy->hurtbox, get_player_hitbox(player)))
-    {
-        printf("Hits enemy.\n");
-        player->status = Dead;
-        player->respawn_countdown = FPS / 2;
     }
 }

@@ -12,6 +12,8 @@ static void draw_scene(const Player* player, const Rectangle objects[],
                        const Apple apples[], int apple_count,
                        int collected_apple_count, bool all_apples_collected);
 
+static void handle_player_enemy_collision(Player* player, const Enemy* enemy);
+
 int main(void)
 {
     // Initialization
@@ -92,8 +94,9 @@ int main(void)
         if (player.is_in_air)
             player.velocity.y += gravity_acceleration;
 
-        update_player(&player, objects, object_count, &enemy);
+        update_player(&player, objects, object_count);
 
+        handle_player_enemy_collision(&player, &enemy);
         if (!all_apples_collected)
         {
             Rectangle hitbox = get_player_hitbox(&player);
@@ -175,4 +178,20 @@ static void draw_scene(const Player* player, const Rectangle objects[],
         }
     }
     EndDrawing();
+}
+
+/**
+ * @brief 
+ * 
+ * @param player 
+ * @param enemy 
+ */
+static void handle_player_enemy_collision(Player* player, const Enemy* enemy)
+{
+    if (aabb_collision(enemy->hurtbox, get_player_hitbox(player)))
+    {
+        printf("Hits enemy.\n");
+        player->status = Dead;
+        player->respawn_countdown = FPS / 2;
+    }
 }
