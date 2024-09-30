@@ -6,7 +6,8 @@
 static void update_texture_frame(Player* player);
 
 /**
- * @brief Handles player horizontal move: `<-`, `->`, `A`, `D`
+ * @brief Handles player horizontal move: `<-`, `->`, `A`, `D`. Updates player
+ *        texture frame.
  * 
  * @param player Pointer to player struct.
  * @param screen_width For stoping player from going out the screen.

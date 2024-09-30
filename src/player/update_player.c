@@ -5,7 +5,7 @@
 #define FPS 60
 
 /**
- * @brief Updates player position and solves collision. Updates texture frame.
+ * @brief Updates player position and solves collision with objects.
  *
  * @param player Pointer to player struct
  * @param objects Pointer to objects array

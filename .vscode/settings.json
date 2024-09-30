@@ -10,6 +10,7 @@
 		"stdio.h": "c",
 		"player.h": "c",
 		"direction.h": "c",
-		"apple.h": "c"
+		"apple.h": "c",
+		"collision.h": "c"
 	}
 }
