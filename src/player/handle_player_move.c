@@ -1,6 +1,10 @@
 #include "inc/player.h"
 #include <math.h> // fabs()
 
+#define FPS 60
+
+static void update_texture_frame(Player* player);
+
 /**
  * @brief Handles player horizontal move: `<-`, `->`, `A`, `D`
  * 
@@ -50,5 +54,19 @@ void handle_player_move(Player* player, int screen_width)
             player->velocity.x -= player->acceleration;
         else if (player->velocity.x < 0)
             player->velocity.x += player->acceleration;
+    }
+    update_texture_frame(player);
+}
+
+static void update_texture_frame(Player* player)
+{
+    if (player->frame_counter >= FPS / player->frame_rate)
+    {
+        player->frame_counter = 0;
+        ++(player->frame_index);
+        if (player->frame_index > 5)
+            player->frame_index = 0;
+        player->frame_rectangle.x = (float)player->frame_index
+                                    * (float)player->texture.width / 6;
     }
 }

@@ -230,16 +230,6 @@ static void update_player(Player* player, const Rectangle objects[],
         }
     }
 
-    if (player->frame_counter >= FPS / player->frame_rate)
-    {
-        player->frame_counter = 0;
-        ++(player->frame_index);
-        if (player->frame_index > 5)
-            player->frame_index = 0;
-        player->frame_rectangle.x = (float)player->frame_index
-                                    * (float)player->texture.width / 6;
-    }
-
     if (aabb_collision(enemy->hurtbox, get_player_hitbox(player)))
     {
         printf("Hits enemy.\n");
