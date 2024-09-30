@@ -14,6 +14,11 @@ static void draw_scene(const Player* player, const Rectangle objects[],
 
 static void handle_player_enemy_collision(Player* player, const Enemy* enemy);
 
+static void handle_player_apples_collision(const Player* player,
+                                           bool*         all_apples_collected,
+                                           Apple apples[], int apple_count,
+                                           int collected_apple_count);
+
 int main(void)
 {
     // Initialization
@@ -97,21 +102,8 @@ int main(void)
         update_player(&player, objects, object_count);
 
         handle_player_enemy_collision(&player, &enemy);
-        if (!all_apples_collected)
-        {
-            Rectangle hitbox = get_player_hitbox(&player);
-            for (int i = 0; i < apple_count; ++i)
-            {
-                if (apples[i].status != Collected
-                    && aabb_collision(apples[i].box, hitbox))
-                {
-                    apples[i].status = Collected;
-                    ++collected_apple_count;
-                }
-            }
-        }
-        if (collected_apple_count == apple_count)
-            all_apples_collected = true;
+        handle_player_apples_collision(&player, &all_apples_collected, apples,
+                                       apple_count, collected_apple_count);
         //----------------------------------------------------------------------
 
         // Draw
@@ -181,10 +173,10 @@ static void draw_scene(const Player* player, const Rectangle objects[],
 }
 
 /**
- * @brief 
- * 
- * @param player 
- * @param enemy 
+ * @brief Checks and handles player and enemy collision.
+ *
+ * @param player Pointer to player struct
+ * @param enemy Pointer to enemy struct
  */
 static void handle_player_enemy_collision(Player* player, const Enemy* enemy)
 {
@@ -194,4 +186,35 @@ static void handle_player_enemy_collision(Player* player, const Enemy* enemy)
         player->status = Dead;
         player->respawn_countdown = FPS / 2;
     }
+}
+
+/**
+ * @brief Checks and handles player and apple collision
+ * 
+ * @param player Pointer to player struct
+ * @param all_apples_collected Pointer to bool variable
+ * @param apples Pointer to apple array.
+ * @param apple_count Number of apples in the array.
+ * @param collected_apple_count Number of collected apple.
+ */
+static void handle_player_apples_collision(const Player* player,
+                                           bool*         all_apples_collected,
+                                           Apple apples[], int apple_count,
+                                           int collected_apple_count)
+{
+    if (!(*all_apples_collected))
+    {
+        Rectangle hitbox = get_player_hitbox(player);
+        for (int i = 0; i < apple_count; ++i)
+        {
+            if (apples[i].status != Collected
+                && aabb_collision(apples[i].box, hitbox))
+            {
+                apples[i].status = Collected;
+                ++collected_apple_count;
+            }
+        }
+    }
+    if (collected_apple_count == apple_count)
+        *all_apples_collected = true;
 }
