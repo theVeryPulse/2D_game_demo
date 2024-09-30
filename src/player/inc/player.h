@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include "../../Direction.h"
+#include "../../enemy/inc/enemy.h"
 #include "raylib.h"
 
 typedef enum Status
@@ -38,5 +39,7 @@ Rectangle get_player_hitbox(const Player* player);
 void      handle_player_move(Player* player, int screen_width);
 void      handle_player_jump(Player* player);
 void      respawn_player(Player* player, float x, float y);
+void update_player(Player* player, const Rectangle objects[], int object_count,
+                   const Enemy* enemy);
 
 #endif
