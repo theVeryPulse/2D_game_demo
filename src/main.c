@@ -8,7 +8,7 @@
 #define FPS 60
 
 static void draw_scene(const Player* player, const Rectangle objects[],
-                       int object_count, const Enemy enemy[],
+                       int object_count, const Enemy* enemy,
                        const Apple apples[], int apple_count,
                        int collected_apple_count, bool all_apples_collected);
 static void update_player(Player* player, const Rectangle objects[],
@@ -32,13 +32,12 @@ int main(void)
     Player      player = build_player(100, 600);
     const float gravity_acceleration = 0.8f;
 
-    Rectangle floor = {
-        .x = 0, .y = screen_height - 200, .width = screen_width, .height = 200};
-    Rectangle left_block = {
-        .x = 200, .y = screen_height - 400, .width = 250, .height = 200};
-    Rectangle block_in_air = {.x = 700, .y = 300, .width = 200, .height = 100};
-    Rectangle right_block = {
-        .x = 1200, .y = screen_height - 400, .width = 250, .height = 200};
+    // clang-format off
+    Rectangle floor        = {.x = 0,    .y = screen_height - 200, .width = screen_width, .height = 200};
+    Rectangle left_block   = {.x = 200,  .y = screen_height - 400, .width = 250,          .height = 200};
+    Rectangle block_in_air = {.x = 700,  .y = 300,                 .width = 200,          .height = 100};
+    Rectangle right_block  = {.x = 1200, .y = screen_height - 400, .width = 250,          .height = 200};
+    // clang-format on
 
     Rectangle objects[] = {floor, left_block, right_block, block_in_air};
     Enemy enemy = build_enemy((Rectangle){.x = left_block.x + left_block.width,
@@ -48,16 +47,14 @@ int main(void)
                               left_block.x + left_block.width - 1,
                               right_block.x - 100 + 1, RED, 2.0f);
 
-    Apple apples[] = {
-        (Apple){NotCollected,
-                (Rectangle){.x = 775, .y = 250, .height = 50, .width = 50}},
-        (Apple){NotCollected,
-                (Rectangle){
-                    .x = 800, .y = floor.y - 50, .height = 50, .width = 50}},
-        (Apple){NotCollected,
-                (Rectangle){
-                    .x = 1700, .y = floor.y - 50, .height = 50, .width = 50}}};
+    // clang-format off
+    Apple apples[] = {(Apple){NotCollected, (Rectangle){.x = 775,  .y = 250,          .height = 50, .width = 50}},
+                      (Apple){NotCollected, (Rectangle){.x = 800,  .y = floor.y - 50, .height = 50, .width = 50}},
+                      (Apple){NotCollected, (Rectangle){.x = 1700, .y = floor.y - 50, .height = 50, .width = 50}}};
+    // clang-format on
+
     int  apple_count = sizeof(apples) / sizeof(apples[0]);
+    int  object_count = sizeof(objects) / sizeof(objects[0]);
     bool all_apples_collected = false;
     int  collected_apple_count = 0;
 
@@ -71,8 +68,8 @@ int main(void)
         // ---------------------------------------------------------------------
         if (player.respawn_countdown > 0)
         {
-            draw_scene(&player, objects, sizeof(objects) / sizeof(objects[0]),
-                       &enemy, apples, apple_count, collected_apple_count,
+            draw_scene(&player, objects, object_count, &enemy, apples,
+                       apple_count, collected_apple_count,
                        all_apples_collected);
             --(player.respawn_countdown);
             continue;
@@ -97,17 +94,15 @@ int main(void)
         if (player.is_in_air)
             player.velocity.y += gravity_acceleration;
 
-        update_player(&player, objects, sizeof(objects) / sizeof(objects[0]),
-                      &enemy);
+        update_player(&player, objects, object_count, &enemy);
 
         if (!all_apples_collected)
         {
             Rectangle hitbox = get_player_hitbox(&player);
             for (int i = 0; i < apple_count; ++i)
             {
-                if (apples[i].status == Collected)
-                    continue;
-                if (aabb_collision(apples[i].box, hitbox))
+                if (apples[i].status != Collected
+                    && aabb_collision(apples[i].box, hitbox))
                 {
                     apples[i].status = Collected;
                     ++collected_apple_count;
@@ -120,9 +115,8 @@ int main(void)
 
         // Draw
         //----------------------------------------------------------------------
-        draw_scene(&player, objects, sizeof(objects) / sizeof(objects[0]),
-                   &enemy, apples, apple_count, collected_apple_count,
-                   all_apples_collected);
+        draw_scene(&player, objects, object_count, &enemy, apples, apple_count,
+                   collected_apple_count, all_apples_collected);
         //----------------------------------------------------------------------
     }
 
@@ -153,7 +147,7 @@ int main(void)
  * 7. Display everything on screen
  */
 static void draw_scene(const Player* player, const Rectangle objects[],
-                       int object_count, const Enemy enemy[],
+                       int object_count, const Enemy* enemy,
                        const Apple apples[], int apple_count,
                        int collected_apple_count, bool all_apples_collected)
 {
@@ -207,14 +201,10 @@ static void update_player(Player* player, const Rectangle objects[],
         if (aabb_collision(objects[i], hitbox))
         {
             if (player->velocity.x > 0) // going right
-            {
                 player->position.x = objects[i].x - hitbox.width / 2 - 0.1f;
-            }
             else if (player->velocity.x < 0) // going left
-            {
                 player->position.x = objects[i].x + objects[i].width
                                      + hitbox.width / 2 + 0.1f;
-            }
             player->velocity.x = 0;
         }
     }
@@ -234,10 +224,8 @@ static void update_player(Player* player, const Rectangle objects[],
                 // printf("Jump reset\n");
             }
             else if (player->velocity.y < 0)
-            {
                 player->position.y = objects[i].y + objects[i].height
                                      + get_player_hitbox(player).height;
-            }
             player->velocity.y = 0;
         }
     }
