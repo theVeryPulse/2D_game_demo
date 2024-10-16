@@ -32,3 +32,7 @@ Conventional controls: Arrows, spacebar, and WSAD.
 ## Future Improvements
 - Optimize checking whether player is still supported by an object when moving left and right.
 - Optimize collision checking algorithm for objects and collectables - currently it is brute force.
+
+## Useful Links
+- [Unlocking VSCode's power to make GAMES in C | Video](https://www.youtube.com/watch?v=xWWqhQ1JnvE&t=72s)
+- [Raylib Template for Multiple C Files | Github](https://github.com/AndrewHamel111/raylib-VSCode-Template)
